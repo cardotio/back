@@ -1,12 +1,13 @@
 package cardio.cardio.service;
 
 import java.util.Collections;
-
-
+import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import cardio.cardio.dto.TeamDto;
 import cardio.cardio.dto.UserDto;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -15,8 +16,9 @@ import cardio.cardio.entity.User;
 import cardio.cardio.exception.DuplicateMemberException;
 import cardio.cardio.exception.InvalidPasswordException;
 import cardio.cardio.exception.InvalidUserException;
-import cardio.cardio.exception.NotFoundMemberException;
+import cardio.cardio.exception.NotFoundException;
 import cardio.cardio.repository.UserRepository;
+import cardio.cardio.repository.UserTeamRepository;
 import cardio.cardio.util.SecurityUtil;
 import cardio.cardio.validator.PasswordValidator;
 import lombok.*;
@@ -26,7 +28,9 @@ import lombok.*;
 public class UserServiceImpl implements UserService{
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final UserTeamRepository userTeamRepository;
 
+    
     /** 유저 아이디로 유저 정보 가져오기 */
     @Override
     @Transactional
@@ -75,7 +79,7 @@ public class UserServiceImpl implements UserService{
         return UserDto.from(
                 SecurityUtil.getCurrentUsername()
                         .flatMap(userRepository::findOneWithAuthoritiesByUsername)
-                        .orElseThrow(() -> new NotFoundMemberException("유저를 찾을 수 없습니다.")));
+                        .orElseThrow(() -> new NotFoundException("유저를 찾을 수 없습니다.")));
     }
 
     /** 사용자 정보 업데이트 */
@@ -94,5 +98,30 @@ public class UserServiceImpl implements UserService{
         }
 
     }
+
+    /** 모든 사용자 가져오기 */
+    @Override
+    public List<UserDto> getUsers() {
+        List<UserDto> users = userRepository.findAll().stream()
+            .map(user -> UserDto.from(user))
+            .collect(Collectors.toList());
+        return users;
+    }
+
+    /** 유저의 팀 목록 가져오기 */
+    @Override
+    public List<TeamDto> getUserTeams() {
+        User user = SecurityUtil.getCurrentUsername()
+            .flatMap(userRepository::findOneWithAuthoritiesByUsername)
+            .orElseThrow(() -> new NotFoundException("유저를 찾을 수 없습니다."));
+
+        return userTeamRepository.findAllByUser(user).
+            orElseThrow(() -> new NotFoundException("유저의 팀을 찾을 수 없습니다.")).stream()
+            .map(userTeam -> TeamDto.builder()
+                .teamname(userTeam.getTeam().getTeamname())
+                .build())
+            .collect(Collectors.toList());
+    }
+    
 
 }

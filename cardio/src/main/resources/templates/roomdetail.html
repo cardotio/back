@@ -1,0 +1,132 @@
+<style>
+    .messages{
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        height: 600px;
+        overflow-y: scroll;
+    }
+    .messages div {
+        padding: 10px;
+        font-size: 15px;
+
+    }
+</style>
+<body>
+    <input class="input-message" />
+    <button class="send-btn" onclick="sendMessage()">Send</button>
+
+    <div class="messages"></div>
+</body>
+
+<script src="https://cdn.jsdelivr.net/npm/vue@2.7.10/dist/vue.js"></script>
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.4.0/sockjs.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+<script>
+    const urlParams = new URL(location.href).searchParams;
+
+    
+    function query(q) {
+        return document.querySelector(q);
+    }
+    let sock = new SockJS("/chat");
+    let ws = Stomp.over(sock);
+    let reconnect = 0;
+
+    const data = {
+        token: urlParams.get('token'),
+        receiver: urlParams.get('receiver'),
+        messages: []
+    }
+    axios.get("https://cardio-api.run.goorm.io/teams/채팅-테스트를-위한-방",
+        { Authorization: data.token },
+        (res) => {
+            console.log(res.data);
+        })
+
+    function connectServer() {
+        console.log("Token: " + data.token );
+
+        ws.connect({ Authorization: data.token }, function (frame) {
+            console.log(frame);
+            ws.subscribe("/sub/chat/users/dbswnduf123", function (message) {
+                var recv = JSON.parse(message.body);
+                console.log(recv);
+                data.messages.push({
+                    name: recv.displayname,
+                    content: recv.content,
+                    createdDate: recv.createdDate
+                });
+                appendMessageToBoard(recv.displayname, recv.content, recv.createdDate);
+            });
+            ws.send("/pub/message", {
+                Authorization: data.token
+            },
+                JSON.stringify({
+                    content: "asdf",
+                    receiver: data.receiver
+                }));
+        }, function (error) {
+            if (reconnect++ <= 5) {
+                setTimeout(function () {
+                    console.log("connection reconnect");
+                    sock = new SockJS("/chat");
+                    ws = Stomp.over(sock);
+                    connect();
+                }, 1000);
+            }
+        });
+    }
+    
+    function disconnectServer() {
+        ws.send("/pub/message", {
+            Authorization: data.token
+        },
+            JSON.stringify({
+                
+        }));
+        ws.disconnect();
+    }
+    
+    function sendMessage() {
+        ws.send("/pub/message", {
+            Authorization: data.token
+        },
+            JSON.stringify({
+                receiver: data.receiver,
+                content: query(".input-message").value
+            }));
+    }
+
+    // function loadPastMessages() {
+    //     axios.get("/rooms/"+data.roomId+"/messages", {headers : { Authorization: data.token }})
+    //         .then((res) => {
+    //             for(let m of res.data) {
+    //                 const message = {
+    //                     name: "",
+    //                     content: "",
+    //                     date: ""
+    //                 }
+    //                 message.name = m.displayname;
+    //                 message.content = m.content;
+    //                 message.date = m.createdDate;
+    //                 data.messages.push(message);
+
+    //                 appendMessageToBoard(m.displayname, m.content, m.createdDate);
+    //             }
+    //         });
+        
+    // }
+
+    function appendMessageToBoard(name, content, date) {
+        const el = document.createElement("div");
+        el.innerText = name + " - " + content + " - " + date;
+        console.log(el)
+        query(".messages").appendChild(el);
+
+        query(".messages").scrollTop = query(".messages").scrollHeight;
+    }
+    connectServer();
+    //loadPastMessages();
+</script>

@@ -9,10 +9,10 @@ import org.springframework.web.bind.annotation.*;
 
 import cardio.cardio.dto.LoginDto;
 import cardio.cardio.dto.TokenDto;
-import cardio.cardio.dto.UserDto;
+import cardio.cardio.dto.user.UserDto;
 import cardio.cardio.jwt.JwtFilter;
 import cardio.cardio.jwt.TokenProvider;
-import cardio.cardio.service.UserServiceImpl;
+import cardio.cardio.service.user.UserServiceImpl;
 import lombok.RequiredArgsConstructor;
 
 import javax.servlet.http.HttpServletRequest;
@@ -49,7 +49,7 @@ public class AuthController {
     @GetMapping("/me")
     public ResponseEntity<UserDto> getCurrentUser(HttpServletRequest request) {
 
-        return ResponseEntity.ok(userService.getCurrentUser());
+        return ResponseEntity.ok(UserDto.from(userService.getCurrentUser()));
     }
 
     //request header에서 토큰 정보를 꺼내옴

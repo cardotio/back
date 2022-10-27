@@ -85,14 +85,14 @@ public class TokenProvider implements InitializingBean {
       return new UsernamePasswordAuthenticationToken(principal, token, authorities);
    }
 
-   public Integer getUserId(String token) {
+   public Long getUserId(String token) {
       Claims claims = Jwts
               .parserBuilder()
               .setSigningKey(key)
               .build()
               .parseClaimsJws(token)
               .getBody();
-      return (Integer)claims.get(USER_ID);
+      return Long.parseLong(String.valueOf(claims.get(USER_ID)));
   }
 
    //토큰의 유효성 검증

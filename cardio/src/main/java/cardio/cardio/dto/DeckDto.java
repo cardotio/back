@@ -11,7 +11,6 @@ public class DeckDto {
     private Long deckId;
     private String deckname;
 
-
     public static DeckDto from(Deck deck) {
         if(deck.equals(null)) return null;
 

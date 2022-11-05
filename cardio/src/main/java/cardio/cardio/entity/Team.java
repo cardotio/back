@@ -18,6 +18,9 @@ public class Team {
        @Column(name = "team_id", unique = true, nullable = false)
        private Long teamId;
    
+       @Column(name = "team_code", unique = true)
+       private String teamCode;
+       
        @Column(length = 50, unique = true, nullable = false)
        private String teamname;
 }

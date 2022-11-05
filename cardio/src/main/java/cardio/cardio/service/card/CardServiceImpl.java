@@ -1,6 +1,7 @@
 package cardio.cardio.service.card;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
@@ -8,11 +9,13 @@ import org.springframework.stereotype.Service;
 import lombok.*;
 import cardio.cardio.dto.CardDto;
 import cardio.cardio.entity.Card;
+import cardio.cardio.entity.Deck;
 import cardio.cardio.entity.Team;
 import cardio.cardio.entity.User;
 import cardio.cardio.exception.NotFoundException;
 import cardio.cardio.exception.UnauthorizedException;
 import cardio.cardio.repository.CardRepository;
+import cardio.cardio.repository.DeckRepository;
 import cardio.cardio.repository.TeamRepository;
 import cardio.cardio.repository.UserRepository;
 import cardio.cardio.repository.UserTeamRepository;
@@ -25,6 +28,7 @@ public class CardServiceImpl implements CardService {
     private final TeamRepository teamRepository;
     private final CardRepository cardRepository;
     private final UserTeamRepository userTeamRepository;
+    private final DeckRepository deckRepository;
 
     /** 유저, 팀, 카드 각종 예외처리 */
     private void validateCard(Long teamId, Long cardId) {
@@ -67,13 +71,29 @@ public class CardServiceImpl implements CardService {
 
         validateUserInTeam(teamId);
 
-        Card card = Card.builder()
+        Optional<Deck> deck = deckRepository.findById(cardDto.getDeckId());
+                
+        Card card;
+            
+        if(deck.isPresent()) {
+                card = Card.builder()
+                .cardname(cardDto.getCardname())
+                .content(cardDto.getContent())
+                .type(cardDto.getType().equals("private") ? false : true)
+                .user(user)
+                .team(team)
+                .deck(deck.get())
+                .build();
+        } else {
+                card = Card.builder()
                 .cardname(cardDto.getCardname())
                 .content(cardDto.getContent())
                 .type(cardDto.getType().equals("private") ? false : true)
                 .user(user)
                 .team(team)
                 .build();
+        }
+        
         return CardDto.from(cardRepository.save(card));
 
     }

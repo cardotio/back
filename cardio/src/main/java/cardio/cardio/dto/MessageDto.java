@@ -12,6 +12,7 @@ import lombok.*;
 @NoArgsConstructor
 public class MessageDto {
     private Long teamId;
+    private Long messageId;
     private String content;
     private String sender;
     private String senderDisplayname;
@@ -19,9 +20,11 @@ public class MessageDto {
     private String createdDate;
     
     private Boolean type; // false = 1대1, true = main 
+    private Long unread;
 
     public static MessageDto from(Message message) {
         return MessageDto.builder()
+            .messageId(message.getMessageId())
             .content(message.getContent())
             .sender(message.getSender().getUsername())
             .senderDisplayname(message.getSender().getDisplayname())
@@ -29,6 +32,7 @@ public class MessageDto {
             .createdDate(message.getCreatedDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")))
             .teamId(message.getTeam().getTeamId())
             .type(message.getType())
+            .unread(message.getUnread())
             .build();
     }
 }

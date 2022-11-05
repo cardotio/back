@@ -51,6 +51,7 @@ public class UserServiceImpl implements UserService {
         // 유저가 속해있는 팀들 안에 있는 유저들 리스트
         List<TeamUsersDto> teamUsers = teams.stream()
             .map(team -> TeamUsersDto.builder()
+                .teamCode(team.getTeamCode())
                 .teamId(team.getTeamId())
                 .teamname(team.getTeamname())
                 .users(userTeamRepository.findAllByTeam(team).get().stream()

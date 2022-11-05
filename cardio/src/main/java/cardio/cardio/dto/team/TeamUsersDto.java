@@ -13,5 +13,6 @@ import lombok.*;
 public class TeamUsersDto {
     Long teamId;
     String teamname;
+    String teamCode;
     List<UserDto> users;
 }

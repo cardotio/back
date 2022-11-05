@@ -12,6 +12,7 @@ import lombok.*;
 @NoArgsConstructor
 public class TeamInfoDto {
     private Long teamId;
+    private String teamCode;
     private String teamname;
     private List<UserDto> users;
     private List<CardDto> cards;

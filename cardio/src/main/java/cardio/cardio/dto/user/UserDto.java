@@ -40,8 +40,6 @@ public class UserDto {
 	@Size(min = 2, max = 50)
 	private String role;
 
-	@NotNull
-	@Size(min = 2, max = 100)
 	private String description;
 	// private List<TeamDto> teams;
 	// private List<InviteUserDto> invitations;

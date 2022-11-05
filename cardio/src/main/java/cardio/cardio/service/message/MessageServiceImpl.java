@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import cardio.cardio.dto.MessageDto;
 import cardio.cardio.entity.Message;
 import cardio.cardio.entity.User;
+import cardio.cardio.entity.Team;
 import cardio.cardio.exception.NotFoundException;
 import cardio.cardio.repository.MessageRepository;
 import cardio.cardio.repository.TeamRepository;
@@ -48,7 +49,6 @@ public class MessageServiceImpl implements MessageService {
         return messages;
     }
 
-    //팀 안의 메세지 가져오기
     @Override
     public List<MessageDto> getTeamMessages(Long teamId) {
         
@@ -57,6 +57,20 @@ public class MessageServiceImpl implements MessageService {
             .orElseThrow(() -> new NotFoundException("팀의 메세지를 찾을 수 없습니다.")).stream()
             .map(message -> MessageDto.from(message))
             .collect(Collectors.toList());
+    }
+
+    @Override
+    public void readMessages(Long teamId, String sender, String receiver) {
+        Team team = teamRepository.findById(teamId)
+            .orElseThrow(() -> new NotFoundException(String.format("팀을 찾을 수 없습니다 {teamId:%d}", teamId)));
+        List<Message> messages = messageRepository.findAllByTeam(team)
+            .orElseThrow(() -> new NotFoundException("메세지들을 찾을 수 없습니다"));
+
+        for(Message message:messages) {
+            if(message.getSender().getUsername().equals(receiver))
+                message.setUnread(0L);
+                messageRepository.save(message);
+        }
     }
 
 }

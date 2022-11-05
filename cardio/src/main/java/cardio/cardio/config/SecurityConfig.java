@@ -86,7 +86,7 @@ public class SecurityConfig {
                 .antMatchers("/chat/**").permitAll()
                 .antMatchers("/chattest").permitAll()
                 .antMatchers("/users").permitAll()
-                
+                .antMatchers("/teams/simple/**").permitAll()
                 .antMatchers("/auth").permitAll()
 
                 .anyRequest().authenticated()

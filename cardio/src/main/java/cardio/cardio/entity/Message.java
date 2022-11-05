@@ -25,8 +25,8 @@ public class Message {
     @Column(length = 1000, name = "content", nullable = false)
     private String content;
             
-    @Column(name="is_read", nullable = false)
-    private Boolean isRead;
+    @Column(name="unread", nullable = false)
+    private Long unread;
 
     @Column(name="type", nullable = false)
     private Boolean type;

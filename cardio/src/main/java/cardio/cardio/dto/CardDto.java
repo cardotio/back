@@ -21,6 +21,8 @@ public class CardDto {
     @NotNull
     private String type;
 
+    private Long deckId;
+    
     private UserDto creator;
     private TeamDto team;
     private DeckDto deck;

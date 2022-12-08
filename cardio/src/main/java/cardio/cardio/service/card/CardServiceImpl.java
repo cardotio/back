@@ -1,12 +1,12 @@
 package cardio.cardio.service.card;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
-import lombok.*;
 import cardio.cardio.dto.CardDto;
 import cardio.cardio.entity.Card;
 import cardio.cardio.entity.Deck;
@@ -20,6 +20,7 @@ import cardio.cardio.repository.TeamRepository;
 import cardio.cardio.repository.UserRepository;
 import cardio.cardio.repository.UserTeamRepository;
 import cardio.cardio.util.SecurityUtil;
+import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
@@ -62,7 +63,6 @@ public class CardServiceImpl implements CardService {
                 .orElseThrow(() -> new NotFoundException("유저를 찾을 수 없습니다.")));
     }
 
-    /** 카드 생성 */
     @Override
     public CardDto createCard(Long teamId, CardDto cardDto) {
         User user = getCurrentUser();
@@ -76,6 +76,7 @@ public class CardServiceImpl implements CardService {
         Card card;
             
         if(deck.isPresent()) {
+                Integer deckLength = deck.get().getCards().size();
                 card = Card.builder()
                 .cardname(cardDto.getCardname())
                 .content(cardDto.getContent())
@@ -83,15 +84,18 @@ public class CardServiceImpl implements CardService {
                 .user(user)
                 .team(team)
                 .deck(deck.get())
+                .priority(Long.valueOf(deckLength))
+                .createdDate(LocalDateTime.now())
                 .build();
         } else {
-                card = Card.builder()
-                .cardname(cardDto.getCardname())
-                .content(cardDto.getContent())
-                .type(cardDto.getType().equals("private") ? false : true)
-                .user(user)
-                .team(team)
-                .build();
+                throw new NotFoundException("덱을 찾을 수 없습니다.");
+                // card = Card.builder()
+                // .cardname(cardDto.getCardname())
+                // .content(cardDto.getContent())
+                // .type(cardDto.getType().equals("private") ? false : true)
+                // .user(user)
+                // .team(team)
+                // .build();
         }
         
         return CardDto.from(cardRepository.save(card));
@@ -118,9 +122,11 @@ public class CardServiceImpl implements CardService {
         card.setContent(cardDto.getContent());
         card.setCardname(cardDto.getCardname());
         card.setType(cardDto.getType().equals("public") ? true : false);
+        
+        
         return CardDto.from(cardRepository.save(card));
     }
-
+    
     @Override
     public CardDto deleteCard(Long teamId, CardDto cardDto) {
         validateCard(teamId, cardDto.getCardId());
@@ -129,4 +135,17 @@ public class CardServiceImpl implements CardService {
         cardRepository.delete(card);
         return CardDto.from(card);
     }
+
+@Override
+public CardDto changeCardAffiliation(Long teamId, CardDto cardDto) {
+        validateCard(teamId, cardDto.getCardId());
+        Card card = cardRepository.findById(cardDto.getCardId()).get();
+        Deck deck = deckRepository.findById(cardDto.getDeckId()).orElseThrow(() -> new NotFoundException("덱을 찾을 수 없습니다"));
+
+        if(!deck.getTeam().getTeamId().equals(teamId)) throw new UnauthorizedException("카드가 덱 안에 속해있지 않습니다");
+        card.setDeck(deck);
+        return CardDto.from(cardRepository.save(card));
+}
+
+
 }

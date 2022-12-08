@@ -1,4 +1,6 @@
 package cardio.cardio.entity;
+import java.time.LocalDateTime;
+
 import javax.persistence.*;
 
 import org.hibernate.annotations.OnDelete;
@@ -29,6 +31,12 @@ public class Card {
     // private = false, public = true
     @Column(nullable = false)
     private Boolean type;
+
+    @Column(nullable = false)
+    private Long priority;
+
+    @Column(name = "created_date")
+    private LocalDateTime createdDate;
 
     @ManyToOne
     @OnDelete(action= OnDeleteAction.CASCADE)

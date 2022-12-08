@@ -1,4 +1,7 @@
 package cardio.cardio.entity;
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.persistence.*;
 
 import org.hibernate.annotations.OnDelete;
@@ -25,4 +28,8 @@ public class Deck {
     @OnDelete(action= OnDeleteAction.CASCADE)
     @JoinColumn(name="team_id")
     private Team team;
+
+    @OneToMany(mappedBy = "deck", cascade = {CascadeType.ALL}, orphanRemoval=true)
+    private List<Card> cards;
+
 }

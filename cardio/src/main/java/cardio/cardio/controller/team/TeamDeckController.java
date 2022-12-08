@@ -32,8 +32,12 @@ public class TeamDeckController {
     
     //public ResponseEntity<DeckDto> updateDeck 
     /** 덱 삭제하기 */
-    //@DeleteMapping("")
-
+    @DeleteMapping("")
+    public ResponseEntity<DeckDto> deleteDeck(
+        @PathVariable Long teamId,
+        @RequestBody DeckDto deckDto) {
+            return ResponseEntity.ok(teamService.deleteDeck(teamId, deckDto));
+    }
     /** 덱 안에 카드 넣기 */
     @PostMapping("/{deckId}/cards")
     public ResponseEntity<CardDto> insertCardIntoDeck(
@@ -42,4 +46,6 @@ public class TeamDeckController {
         @RequestBody CardDto cardDto) {
         return ResponseEntity.ok(teamService.insertCardIntoDeck(teamId, deckId, cardDto.getCardId()));
     }
+
+    
 }

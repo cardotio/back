@@ -45,7 +45,6 @@ public class AuthController {
         return new ResponseEntity<>(new TokenDto(jwt), httpHeaders, HttpStatus.OK);
     }
 
-    /** 토큰의 소유자 유저 정보 가져오기 */
     @GetMapping("/me")
     public ResponseEntity<UserDto> getCurrentUser(HttpServletRequest request) {
 

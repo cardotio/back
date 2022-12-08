@@ -10,4 +10,6 @@ public interface CardService {
     CardDto deleteCard(Long teamId, CardDto cardDto);
     List<CardDto> getCards(Long teamId);
 
+    CardDto changeCardAffiliation(Long teamId, CardDto cardDto);
+
 }

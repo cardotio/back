@@ -1,5 +1,7 @@
 package cardio.cardio.dto;
 
+import java.time.LocalDateTime;
+
 import javax.validation.constraints.NotNull;
 
 import cardio.cardio.dto.user.UserDto;
@@ -22,10 +24,13 @@ public class CardDto {
     private String type;
 
     private Long deckId;
-    
+    private Long priority;
+
     private UserDto creator;
     private TeamDto team;
     private DeckDto deck;
+    private LocalDateTime createdDate;
+    
 
     public static CardDto from(Card card) {
         if(card == null) return null;
@@ -43,6 +48,8 @@ public class CardDto {
                 .creator(UserDto.from(card.getUser()))
                 .team(TeamDto.from(card.getTeam()))
                 .deck(deck)
+                .priority(card.getPriority())
+                .createdDate(card.getCreatedDate())
                 .build();
      }
 }

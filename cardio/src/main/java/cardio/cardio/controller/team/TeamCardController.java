@@ -32,6 +32,11 @@ public class TeamCardController {
     public ResponseEntity<CardDto> updateCard(@PathVariable Long teamId, @RequestBody CardDto cardDto) {
         return ResponseEntity.ok(cardService.updateCard(teamId, cardDto));
     }
+
+    @PutMapping("/decks")
+    public ResponseEntity<CardDto> changeCardAffiliation(@PathVariable Long teamId, @RequestBody CardDto cardDto) {
+        return ResponseEntity.ok(cardService.changeCardAffiliation(teamId, cardDto));
+    }
     /** 카드 삭제 */
     @DeleteMapping("")
     public ResponseEntity<CardDto> deleteCard(@PathVariable Long teamId, @RequestBody CardDto cardDto) {
